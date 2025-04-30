@@ -17,14 +17,20 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := db.GetTask(id)
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
+
+	task, err := dbInstance.GetTask(id)
 	if err != nil {
 		writeJson(w, map[string]string{"error": "задача не найдена"}, http.StatusNotFound)
 		return
 	}
 
 	if task.Repeat == "" {
-		err = db.DeleteTask(id)
+		err = dbInstance.DeleteTask(id)
 		if err != nil {
 			writeJson(w, map[string]string{"error": "не удалось удалить задачу"}, http.StatusInternalServerError)
 			return
@@ -37,7 +43,7 @@ func doneTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = db.UpdateDate(nextDate, id)
+		err = dbInstance.UpdateDate(nextDate, id)
 		if err != nil {
 			writeJson(w, map[string]string{"error": "не удалось обновить дату задачи"}, http.StatusInternalServerError)
 			return

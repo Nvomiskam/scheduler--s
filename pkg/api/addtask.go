@@ -59,7 +59,12 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	id, err := db.AddTask(&task)
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
+	id, err := dbInstance.AddTask(&task)
 	if err != nil {
 		writeJson(w, map[string]string{"error": "ошибка добавления задачи"}, http.StatusInternalServerError)
 		return

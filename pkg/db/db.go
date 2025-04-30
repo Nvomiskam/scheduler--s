@@ -9,8 +9,9 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// Используется для глобального подключения к базе данных
-var db *sql.DB
+type DB struct {
+	db *sql.DB
+}
 
 // Константа с SQL командами для создания таблицы scheduler и индекса по колонке date
 const schema = `
@@ -26,27 +27,22 @@ CREATE INDEX IF NOT EXISTS idx_date ON scheduler(date);`
 
 // Init инициализирует подключение к БД
 // dbFile - путь к файлу базы данных
-func Init(dbFile string) error {
+func NewDB(dbFile string) (*DB, error) {
 
 	_, err := os.Stat(dbFile)
 	install := os.IsNotExist(err)
 
-	db, err = sql.Open("sqlite", dbFile)
+	conn, err := sql.Open("sqlite", dbFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if install {
-		if _, err := db.Exec(schema); err != nil {
-			return err
+		if _, err := conn.Exec(schema); err != nil {
+			return nil, err
 		}
 	}
-	return nil
-}
-
-// GetDB возвращает глобальное подключение к БД
-func GetDB() *sql.DB {
-	return db
+	return &DB{db: conn}, nil
 }
 
 // GetDBPath возвращает путь к файлу БД из переменной окружения или по умолчанию

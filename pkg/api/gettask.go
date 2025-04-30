@@ -15,7 +15,13 @@ func getTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := db.GetTask(id)
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
+
+	task, err := dbInstance.GetTask(id)
 	if err != nil {
 		writeJson(w, map[string]string{"error": "задача не найдена"}, http.StatusNotFound)
 		return

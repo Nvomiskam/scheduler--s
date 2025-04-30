@@ -6,4 +6,4 @@ var Port = 7540
 var DBFile = "../scheduler.db"
 var FullNextDate = true
 var Search = true
-var Token = os.Getenv("TEST_TOKEN")
+var Token = os.Getenv("TODO_TOKEN")

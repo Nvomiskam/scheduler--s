@@ -62,7 +62,13 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = db.UpdateTask(&task)
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
+
+	err = dbInstance.UpdateTask(&task)
 	if err != nil {
 		writeJson(w, map[string]string{"error": "ошибка обновления задачи"}, http.StatusInternalServerError)
 		return

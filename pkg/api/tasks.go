@@ -12,16 +12,24 @@ type TasksResp struct {
 	Tasks []*db.Task `json:"tasks"`
 }
 
+// Константа для лимита количества задач
+const taskLimit = 50
+
 // tasksHandler обрабатывает запрос для возвращения списка задач
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	search := r.URL.Query().Get("search")
 	var tasks []*db.Task
 	var err error
 
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
 	if search != "" {
-		tasks, err = db.GetFilteredTasks(search, 50)
+		tasks, err = dbInstance.GetFilteredTasks(search, taskLimit)
 	} else {
-		tasks, err = db.Tasks(50)
+		tasks, err = dbInstance.Tasks(taskLimit)
 	}
 
 	if err != nil {

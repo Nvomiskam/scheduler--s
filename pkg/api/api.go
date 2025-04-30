@@ -3,10 +3,11 @@ package api
 
 import (
 	"encoding/json"
+	"go1f/pkg/db"
 	"net/http"
 )
 
-func Init() {
+func Init(scheduler *db.DB) {
 	http.HandleFunc("/api/signin", signinHandler)
 	http.HandleFunc("/api/nextdate", nextDateHandler)
 	http.HandleFunc("/api/task", auth(taskHandler))

@@ -14,7 +14,12 @@ func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.DeleteTask(id)
+	dbInstance, err := db.NewDB(db.GetDBPath())
+	if err != nil {
+		writeJson(w, map[string]string{"error": "ошибка подключения к базе данных"}, http.StatusInternalServerError)
+		return
+	}
+	err = dbInstance.DeleteTask(id)
 	if err != nil {
 		writeJson(w, map[string]string{"error": "не удалось удалить задачу"}, http.StatusInternalServerError)
 		return

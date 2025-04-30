@@ -15,7 +15,7 @@ var jwtSecret = []byte(os.Getenv("TODO_PASSWORD"))
 func auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if len(os.Getenv("TODO_PASSWORD")) == 0 {
+		if len(jwtSecret) == 0 {
 			next(w, r)
 			return
 		}
@@ -55,14 +55,13 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	envPassword := os.Getenv("TODO_PASSWORD")
-	if request.Password != envPassword {
+	if request.Password != string(jwtSecret) {
 		writeJson(w, map[string]string{"error": "Неверный пароль"}, http.StatusUnauthorized)
 		return
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"hash":    envPassword,
+		"hash":    string(jwtSecret),
 		"expires": time.Now().Add(8 * time.Hour).Unix(),
 	})
 

@@ -8,11 +8,13 @@ import (
 
 func main() {
 	// Инициализация подключения к базе данных
-	if err := db.Init(db.GetDBPath()); err != nil {
+	scheduler, err := db.NewDB(db.GetDBPath())
+	if err != nil {
 		panic(err)
 	}
 	// Регистрация API обработчиков
-	api.Init()
+	api.Init(scheduler)
+
 	// Запуск HTTP-сервера
 	if err := server.Run(); err != nil {
 		panic(err)

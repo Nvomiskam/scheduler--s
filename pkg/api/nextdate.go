@@ -10,6 +10,12 @@ import (
 
 // nextDateHandler обрабатывает запрос на расчёт следующей даты
 func nextDateHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		writeJson(w, map[string]string{"error": "метод не поддерживается"}, http.StatusMethodNotAllowed)
+		return
+	}
+
 	dateStr := r.FormValue("date")
 	repeat := r.FormValue("repeat")
 	nowStr := r.FormValue("now")
@@ -34,5 +40,8 @@ func nextDateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte(result))
+	if _, err := w.Write([]byte(result)); err != nil {
+		writeJson(w, map[string]string{"error": "не удалось отправить ответ"}, http.StatusInternalServerError)
+		return
+	}
 }
